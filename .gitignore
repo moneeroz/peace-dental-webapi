@@ -482,3 +482,10 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+
+# dotnet tools
+.config
+
+# Db migrations
+Migrations
