@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
+using peace_api.Mappers;
 
 namespace peace_api.Controllers
 {
@@ -16,25 +17,26 @@ namespace peace_api.Controllers
 
         // GET: api/patients
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public IActionResult GetAll()
         {
-            var patients = await _context.Patients.ToListAsync();
+            var patients = _context.Patients.ToList()
+             .Select(x => x.ToPatientDto());
 
             return Ok(patients);
         }
 
         // GET: api/patients/:id
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id)
+        public IActionResult GetById(Guid id)
         {
-            var patient = await _context.Patients.FindAsync(id);
+            var patient = _context.Patients.Find(id);
 
             if (patient == null)
             {
                 return NotFound();
             }
 
-            return Ok(patient);
+            return Ok(patient.ToPatientDto());
         }
     }
 }
