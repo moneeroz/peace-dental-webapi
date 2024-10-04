@@ -67,5 +67,22 @@ namespace peace_api.Controllers
 
             return Ok(doctor.ToDoctorDto());
         }
+
+        // DELETE: api/doctors/:id
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] Guid id)
+        {
+            var doctor = _context.Doctors.Find(id);
+
+            if (doctor == null)
+            {
+                return NotFound();
+            }
+
+            _context.Doctors.Remove(doctor);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
     }
 }

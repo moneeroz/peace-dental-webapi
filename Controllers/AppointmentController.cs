@@ -68,5 +68,22 @@ namespace peace_api.Controllers
 
             return Ok(appointment.ToAppointmentDto());
         }
+
+        // DELETE: api/appointments/:id
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] Guid id)
+        {
+            var appointment = _context.Appointments.Find(id);
+
+            if (appointment == null)
+            {
+                return NotFound();
+            }
+
+            _context.Appointments.Remove(appointment);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
     }
 }

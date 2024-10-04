@@ -69,5 +69,22 @@ namespace peace_api.Controllers
 
             return Ok(invoice.ToInvoiceDto());
         }
+
+        // DELETE: api/invoices/:id
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] Guid id)
+        {
+            var invoice = _context.Invoices.Find(id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            _context.Invoices.Remove(invoice);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
     }
 }

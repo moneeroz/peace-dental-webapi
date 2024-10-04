@@ -67,5 +67,22 @@ namespace peace_api.Controllers
 
             return Ok(patient.ToPatientDto());
         }
+
+        // DELETE: api/patients/:id
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] Guid id)
+        {
+            var patient = _context.Patients.Find(id);
+
+            if (patient == null)
+            {
+                return NotFound();
+            }
+
+            _context.Patients.Remove(patient);
+            _context.SaveChanges();
+
+            return NoContent();
+        }
     }
 }
