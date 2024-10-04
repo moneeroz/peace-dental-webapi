@@ -18,19 +18,19 @@ namespace peace_api.Controllers
 
         // GET: api/patients
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var patients = _context.Patients.ToList()
-             .Select(x => x.ToPatientDto());
+            var patients = await _context.Patients.ToListAsync();
+            var patientDto = patients.Select(x => x.ToPatientDto());
 
-            return Ok(patients);
+            return Ok(patientDto);
         }
 
         // GET: api/patients/:id
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
-            var patient = _context.Patients.Find(id);
+            var patient = await _context.Patients.FindAsync(id);
 
             if (patient == null)
             {
@@ -42,20 +42,21 @@ namespace peace_api.Controllers
 
         // POST: api/patients
         [HttpPost]
-        public IActionResult Post([FromBody] CreatePatientDto patientDto)
+        public async Task<IActionResult> Post([FromBody] CreatePatientDto patientDto)
         {
             var patient = patientDto.ToPatientFromCreateDto();
-            _context.Patients.Add(patient);
-            _context.SaveChanges();
+            await _context.Patients.AddAsync(patient);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = patient.Id }, patient.ToPatientDto());
         }
 
         // PUT: api/patients/:id
         [HttpPut("{id}")]
-        public IActionResult Put([FromRoute] Guid id, [FromBody] UpdatePatientDto updateDto)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdatePatientDto updateDto)
         {
-            var patient = _context.Patients.Find(id);
+            var patient = await _context.Patients.FindAsync(id);
+
             if (patient == null)
             {
                 return NotFound();
@@ -63,16 +64,16 @@ namespace peace_api.Controllers
 
             patient.Name = updateDto.Name;
             patient.Phone = updateDto.Phone;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(patient.ToPatientDto());
         }
 
         // DELETE: api/patients/:id
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var patient = _context.Patients.Find(id);
+            var patient = await _context.Patients.FindAsync(id);
 
             if (patient == null)
             {
@@ -80,7 +81,7 @@ namespace peace_api.Controllers
             }
 
             _context.Patients.Remove(patient);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

@@ -18,19 +18,19 @@ namespace peace_api.Controllers
 
         // GET: api/invoices
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var invoices = _context.Invoices.ToList()
-             .Select(x => x.ToInvoiceDto());
+            var invoices = await _context.Invoices.ToListAsync();
+            var invoiceDto = invoices.Select(x => x.ToInvoiceDto());
 
-            return Ok(invoices);
+            return Ok(invoiceDto);
         }
 
         // GET: api/invoices/:id
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
-            var invoice = _context.Invoices.Find(id);
+            var invoice = await _context.Invoices.FindAsync(id);
 
             if (invoice == null)
             {
@@ -42,20 +42,20 @@ namespace peace_api.Controllers
 
         // POST: api/invoices
         [HttpPost]
-        public IActionResult Post([FromBody] CreateInvoiceDto invoiceDto)
+        public async Task<IActionResult> Post([FromBody] CreateInvoiceDto invoiceDto)
         {
             var invoice = invoiceDto.ToInvoiceFromCreateDto();
-            _context.Invoices.Add(invoice);
-            _context.SaveChanges();
+            await _context.Invoices.AddAsync(invoice);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = invoice.Id }, invoice.ToInvoiceDto());
         }
 
         // PUT: api/invoices/:id
         [HttpPut("{id}")]
-        public IActionResult Put([FromRoute] Guid id, [FromBody] UpdateInvoiceDto updateDto)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdateInvoiceDto updateDto)
         {
-            var invoice = _context.Invoices.Find(id);
+            var invoice = await _context.Invoices.FindAsync(id);
 
             if (invoice == null)
             {
@@ -65,16 +65,16 @@ namespace peace_api.Controllers
             invoice.Amount = updateDto.Amount;
             invoice.Reason = updateDto.Reason;
             invoice.Status = updateDto.Status;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(invoice.ToInvoiceDto());
         }
 
         // DELETE: api/invoices/:id
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var invoice = _context.Invoices.Find(id);
+            var invoice = await _context.Invoices.FindAsync(id);
 
             if (invoice == null)
             {
@@ -82,7 +82,7 @@ namespace peace_api.Controllers
             }
 
             _context.Invoices.Remove(invoice);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }

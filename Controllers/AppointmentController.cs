@@ -18,19 +18,19 @@ namespace peace_api.Controllers
 
         // GET: api/appointments
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var appointments = _context.Appointments.ToList()
-             .Select(x => x.ToAppointmentDto());
+            var appointments = await _context.Appointments.ToListAsync();
+            var appointmentDto = appointments.Select(x => x.ToAppointmentDto());
 
-            return Ok(appointments);
+            return Ok(appointmentDto);
         }
 
         // GET: api/appointments/:id
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] Guid id)
+        public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
-            var appointment = _context.Appointments.Find(id);
+            var appointment = await _context.Appointments.FindAsync(id);
 
             if (appointment == null)
             {
@@ -42,20 +42,20 @@ namespace peace_api.Controllers
 
         // POST: api/appointments
         [HttpPost]
-        public IActionResult Post([FromBody] CreateAppointmentDto appointmentDto)
+        public async Task<IActionResult> Post([FromBody] CreateAppointmentDto appointmentDto)
         {
             var appointment = appointmentDto.ToAppointmentFromCreateDto();
-            _context.Appointments.Add(appointment);
-            _context.SaveChanges();
+            await _context.Appointments.AddAsync(appointment);
+            await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetById), new { id = appointment.Id }, appointment.ToAppointmentDto());
         }
 
         // PUT: api/appointments/:id
         [HttpPut("{id}")]
-        public IActionResult Put([FromRoute] Guid id, [FromBody] UpdateAppointmentDto updateDto)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdateAppointmentDto updateDto)
         {
-            var appointment = _context.Appointments.Find(id);
+            var appointment = await _context.Appointments.FindAsync(id);
 
             if (appointment == null)
             {
@@ -64,16 +64,16 @@ namespace peace_api.Controllers
 
             appointment.Reason = updateDto.Reason;
             appointment.AppointmentDate = updateDto.AppointmentDate;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(appointment.ToAppointmentDto());
         }
 
         // DELETE: api/appointments/:id
         [HttpDelete("{id}")]
-        public IActionResult Delete([FromRoute] Guid id)
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var appointment = _context.Appointments.Find(id);
+            var appointment = await _context.Appointments.FindAsync(id);
 
             if (appointment == null)
             {
@@ -81,7 +81,7 @@ namespace peace_api.Controllers
             }
 
             _context.Appointments.Remove(appointment);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
