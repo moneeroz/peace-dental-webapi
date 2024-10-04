@@ -50,5 +50,24 @@ namespace peace_api.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = invoice.Id }, invoice.ToInvoiceDto());
         }
+
+        // PUT: api/invoices/:id
+        [HttpPut("{id}")]
+        public IActionResult Put([FromRoute] Guid id, [FromBody] UpdateInvoiceDto updateDto)
+        {
+            var invoice = _context.Invoices.Find(id);
+
+            if (invoice == null)
+            {
+                return NotFound();
+            }
+
+            invoice.Amount = updateDto.Amount;
+            invoice.Reason = updateDto.Reason;
+            invoice.Status = updateDto.Status;
+            _context.SaveChanges();
+
+            return Ok(invoice.ToInvoiceDto());
+        }
     }
 }

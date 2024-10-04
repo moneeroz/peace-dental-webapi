@@ -50,5 +50,23 @@ namespace peace_api.Controllers
 
             return CreatedAtAction(nameof(GetById), new { id = appointment.Id }, appointment.ToAppointmentDto());
         }
+
+        // PUT: api/appointments/:id
+        [HttpPut("{id}")]
+        public IActionResult Put([FromRoute] Guid id, [FromBody] UpdateAppointmentDto updateDto)
+        {
+            var appointment = _context.Appointments.Find(id);
+
+            if (appointment == null)
+            {
+                return NotFound();
+            }
+
+            appointment.Reason = updateDto.Reason;
+            appointment.AppointmentDate = updateDto.AppointmentDate;
+            _context.SaveChanges();
+
+            return Ok(appointment.ToAppointmentDto());
+        }
     }
 }

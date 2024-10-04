@@ -8,8 +8,8 @@ namespace peace_api.Models
 {
     public enum Status
     {
-        Paid,
-        Pending
+        Pending,
+        Paid
     }
     public class Invoice
     {
