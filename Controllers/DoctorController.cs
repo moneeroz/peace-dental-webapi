@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
+using peace_api.Dtos.Doctor;
 using peace_api.Mappers;
 
 namespace peace_api.Controllers
@@ -27,7 +28,7 @@ namespace peace_api.Controllers
 
         // GET: api/doctors/:id
         [HttpGet("{id}")]
-        public IActionResult GetById(Guid id)
+        public IActionResult GetById([FromRoute] Guid id)
         {
             var doctor = _context.Doctors.Find(id);
 
@@ -37,6 +38,17 @@ namespace peace_api.Controllers
             }
 
             return Ok(doctor.ToDoctorDto());
+        }
+
+        // POST: api/doctors
+        [HttpPost]
+        public IActionResult Post([FromBody] CreateDoctorDto doctorDto)
+        {
+            var doctor = doctorDto.ToDoctorFromCreateDto();
+            _context.Doctors.Add(doctor);
+            _context.SaveChanges();
+
+            return CreatedAtAction(nameof(GetById), new { id = doctor.Id }, doctor.ToDoctorDto());
         }
     }
 }

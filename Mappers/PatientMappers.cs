@@ -18,5 +18,14 @@ namespace peace_api.Mappers
                 Phone = patient.Phone
             };
         }
+
+        public static Patient ToPatientFromCreateDto(this CreatePatientDto patientDto)
+        {
+            return new Patient
+            {
+                Name = patientDto.Name,
+                Phone = patientDto.Phone
+            };
+        }
     }
 }

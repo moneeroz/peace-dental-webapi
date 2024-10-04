@@ -19,5 +19,14 @@ namespace peace_api.Mappers
                 Reason = invoice.Reason
             };
         }
+
+        public static Invoice ToInvoiceFromCreateDto(this CreateInvoiceDto invoiceDto)
+        {
+            return new Invoice
+            {
+                Amount = invoiceDto.Amount,
+                Reason = invoiceDto.Reason
+            };
+        }
     }
 }

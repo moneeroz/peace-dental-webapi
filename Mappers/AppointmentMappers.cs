@@ -21,5 +21,14 @@ namespace peace_api.Mappers
                 PhoneNumber = appointment.Patient?.Phone ?? string.Empty
             };
         }
+
+        public static Appointment ToAppointmentFromCreateDto(this CreateAppointmentDto appointmentDto)
+        {
+            return new Appointment
+            {
+                AppointmentDate = appointmentDto.AppointmentDate,
+                Reason = appointmentDto.Reason,
+            };
+        }
     }
 }
