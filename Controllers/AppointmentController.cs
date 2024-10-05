@@ -23,6 +23,10 @@ namespace peace_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+
             var appointments = await _appointmentRepo.GetAllAsync();
 
             var appointmentDto = appointments.Select(x => x.ToAppointmentDto());
@@ -31,9 +35,12 @@ namespace peace_api.Controllers
         }
 
         // GET: api/appointments/:id
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var appointment = await _appointmentRepo.GetByIdAsync(id);
 
             if (appointment == null)
@@ -45,9 +52,12 @@ namespace peace_api.Controllers
         }
 
         // POST: api/appointments
-        [HttpPost("{patientId}")]
+        [HttpPost("{patientId:guid}")]
         public async Task<IActionResult> Post([FromRoute] Guid patientId, [FromBody] CreateAppointmentDto appointmentDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             if (!await _patientRepo.PatientExists(patientId))
             {
                 return BadRequest("Patient does not exist");
@@ -61,9 +71,12 @@ namespace peace_api.Controllers
         }
 
         // PUT: api/appointments/:id
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdateAppointmentDto updateDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var appointment = await _appointmentRepo.UpdateAsync(id, updateDto);
 
             if (appointment == null)
@@ -75,9 +88,12 @@ namespace peace_api.Controllers
         }
 
         // DELETE: api/appointments/:id
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var appointment = await _appointmentRepo.DeleteAsync(id);
 
             if (appointment == null)

@@ -22,6 +22,9 @@ namespace peace_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var patients = await _patientRepo.GetAllAsync();
 
             var patientDto = patients.Select(x => x.ToPatientDto());
@@ -30,9 +33,12 @@ namespace peace_api.Controllers
         }
 
         // GET: api/patients/:id
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var patient = await _patientRepo.GetByIdAsync(id);
 
             if (patient == null)
@@ -47,6 +53,9 @@ namespace peace_api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreatePatientDto patientDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var patient = patientDto.ToPatientFromCreateDto();
 
             await _patientRepo.CreateAsync(patient);
@@ -55,9 +64,12 @@ namespace peace_api.Controllers
         }
 
         // PUT: api/patients/:id
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdatePatientDto updateDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var patient = await _patientRepo.UpdateAsync(id, updateDto);
 
             if (patient == null)
@@ -69,9 +81,12 @@ namespace peace_api.Controllers
         }
 
         // DELETE: api/patients/:id
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var patient = await _patientRepo.DeleteAsync(id);
 
             if (patient == null)

@@ -22,6 +22,9 @@ namespace peace_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var doctors = await _doctorRepo.GetAllAsync();
 
             var doctorDto = doctors.Select(x => x.ToDoctorDto());
@@ -30,9 +33,12 @@ namespace peace_api.Controllers
         }
 
         // GET: api/doctors/:id
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var doctor = await _doctorRepo.GetByIdAsync(id);
 
             if (doctor == null)
@@ -47,6 +53,9 @@ namespace peace_api.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateDoctorDto doctorDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var doctor = doctorDto.ToDoctorFromCreateDto();
 
             await _doctorRepo.CreateAsync(doctor);
@@ -55,9 +64,12 @@ namespace peace_api.Controllers
         }
 
         // PUT: api/doctors/:id
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdateDoctorDto updateDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var doctor = await _doctorRepo.UpdateAsync(id, updateDto);
 
             if (doctor == null)
@@ -69,9 +81,12 @@ namespace peace_api.Controllers
         }
 
         // DELETE: api/doctors/:id
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var doctor = await _doctorRepo.DeleteAsync(id);
 
             if (doctor == null)

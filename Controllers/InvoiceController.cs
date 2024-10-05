@@ -23,6 +23,9 @@ namespace peace_api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var invoices = await _invoiceRepo.GetAllAsync();
 
             var invoiceDto = invoices.Select(x => x.ToInvoiceDto());
@@ -31,9 +34,12 @@ namespace peace_api.Controllers
         }
 
         // GET: api/invoices/:id
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var invoice = await _invoiceRepo.GetByIdAsync(id);
 
             if (invoice == null)
@@ -45,9 +51,12 @@ namespace peace_api.Controllers
         }
 
         // POST: api/invoices
-        [HttpPost("{patientId}")]
+        [HttpPost("{patientId:guid}")]
         public async Task<IActionResult> Post([FromRoute] Guid patientId, [FromBody] CreateInvoiceDto invoiceDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             if (!await _patientRepo.PatientExists(patientId))
             {
                 return BadRequest("Patient does not exist");
@@ -61,9 +70,12 @@ namespace peace_api.Controllers
         }
 
         // PUT: api/invoices/:id
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdateInvoiceDto updateDto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var invoice = await _invoiceRepo.UpdateAsync(id, updateDto);
 
             if (invoice == null)
@@ -75,9 +87,12 @@ namespace peace_api.Controllers
         }
 
         // DELETE: api/invoices/:id
-        [HttpDelete("{id}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var invoice = await _invoiceRepo.DeleteAsync(id);
 
             if (invoice == null)
