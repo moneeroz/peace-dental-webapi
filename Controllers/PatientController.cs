@@ -6,21 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Patient;
+using peace_api.Interfaces;
 using peace_api.Mappers;
 
 namespace peace_api.Controllers
 {
     [Route("api/patients")]
     [ApiController]
-    public class PatientController(ApplicationDBContext context) : ControllerBase
+    public class PatientController(ApplicationDBContext context, IPatientRepository patientRepo) : ControllerBase
     {
         private readonly ApplicationDBContext _context = context;
+        private readonly IPatientRepository _patientRepo = patientRepo;
 
         // GET: api/patients
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var patients = await _context.Patients.ToListAsync();
+            var patients = await _patientRepo.GetAllAsync();
+
             var patientDto = patients.Select(x => x.ToPatientDto());
 
             return Ok(patientDto);
@@ -30,7 +33,7 @@ namespace peace_api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
-            var patient = await _context.Patients.FindAsync(id);
+            var patient = await _patientRepo.GetByIdAsync(id);
 
             if (patient == null)
             {
@@ -45,8 +48,8 @@ namespace peace_api.Controllers
         public async Task<IActionResult> Post([FromBody] CreatePatientDto patientDto)
         {
             var patient = patientDto.ToPatientFromCreateDto();
-            await _context.Patients.AddAsync(patient);
-            await _context.SaveChangesAsync();
+
+            await _patientRepo.CreateAsync(patient);
 
             return CreatedAtAction(nameof(GetById), new { id = patient.Id }, patient.ToPatientDto());
         }
@@ -55,16 +58,12 @@ namespace peace_api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdatePatientDto updateDto)
         {
-            var patient = await _context.Patients.FindAsync(id);
+            var patient = await _patientRepo.UpdateAsync(id, updateDto);
 
             if (patient == null)
             {
                 return NotFound();
             }
-
-            patient.Name = updateDto.Name;
-            patient.Phone = updateDto.Phone;
-            await _context.SaveChangesAsync();
 
             return Ok(patient.ToPatientDto());
         }
@@ -73,15 +72,12 @@ namespace peace_api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var patient = await _context.Patients.FindAsync(id);
+            var patient = await _patientRepo.DeleteAsync(id);
 
             if (patient == null)
             {
                 return NotFound();
             }
-
-            _context.Patients.Remove(patient);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }

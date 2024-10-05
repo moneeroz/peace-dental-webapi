@@ -16,16 +16,21 @@ namespace peace_api.Mappers
                 Id = invoice.Id,
                 Amount = invoice.Amount,
                 Status = invoice.Status == Status.Paid ? "Paid" : "Pending",
-                Reason = invoice.Reason
+                Reason = invoice.Reason,
+                DoctorName = invoice.Doctor?.Name ?? string.Empty,
+                PatientName = invoice.Patient?.Name ?? string.Empty,
+                Date = invoice.CreatedAt
             };
         }
 
-        public static Invoice ToInvoiceFromCreateDto(this CreateInvoiceDto invoiceDto)
+        public static Invoice ToInvoiceFromCreateDto(this CreateInvoiceDto invoiceDto, Guid patientId)
         {
             return new Invoice
             {
                 Amount = invoiceDto.Amount,
-                Reason = invoiceDto.Reason
+                Reason = invoiceDto.Reason,
+                PatientId = patientId,
+                DoctorId = invoiceDto.DoctorId
             };
         }
     }

@@ -8,6 +8,7 @@ namespace peace_api.Dtos.Appointment
     public class UpdateAppointmentDto
     {
         public DateTime AppointmentDate { get; set; }
+        public Guid? DoctorId { get; set; }
         public string Reason { get; set; } = string.Empty;
     }
 }

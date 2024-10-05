@@ -6,21 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Doctor;
+using peace_api.Interfaces;
 using peace_api.Mappers;
 
 namespace peace_api.Controllers
 {
     [Route("api/doctors")]
     [ApiController]
-    public class DoctorController(ApplicationDBContext context) : ControllerBase
+    public class DoctorController(ApplicationDBContext context, IDoctorRepository doctorRepo) : ControllerBase
     {
         private readonly ApplicationDBContext _context = context;
+        private readonly IDoctorRepository _doctorRepo = doctorRepo;
 
         // GET: api/doctors
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var doctors = await _context.Doctors.ToListAsync();
+            var doctors = await _doctorRepo.GetAllAsync();
+
             var doctorDto = doctors.Select(x => x.ToDoctorDto());
 
             return Ok(doctorDto);
@@ -30,7 +33,7 @@ namespace peace_api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
+            var doctor = await _doctorRepo.GetByIdAsync(id);
 
             if (doctor == null)
             {
@@ -45,8 +48,8 @@ namespace peace_api.Controllers
         public async Task<IActionResult> Post([FromBody] CreateDoctorDto doctorDto)
         {
             var doctor = doctorDto.ToDoctorFromCreateDto();
-            await _context.Doctors.AddAsync(doctor);
-            await _context.SaveChangesAsync();
+
+            await _doctorRepo.CreateAsync(doctor);
 
             return CreatedAtAction(nameof(GetById), new { id = doctor.Id }, doctor.ToDoctorDto());
         }
@@ -55,15 +58,12 @@ namespace peace_api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdateDoctorDto updateDto)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
+            var doctor = await _doctorRepo.UpdateAsync(id, updateDto);
 
             if (doctor == null)
             {
                 return NotFound();
             }
-
-            doctor.Name = updateDto.Name;
-            await _context.SaveChangesAsync();
 
             return Ok(doctor.ToDoctorDto());
         }
@@ -72,15 +72,12 @@ namespace peace_api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var doctor = await _context.Doctors.FindAsync(id);
+            var doctor = await _doctorRepo.DeleteAsync(id);
 
             if (doctor == null)
             {
                 return NotFound();
             }
-
-            _context.Doctors.Remove(doctor);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }

@@ -22,12 +22,14 @@ namespace peace_api.Mappers
             };
         }
 
-        public static Appointment ToAppointmentFromCreateDto(this CreateAppointmentDto appointmentDto)
+        public static Appointment ToAppointmentFromCreateDto(this CreateAppointmentDto appointmentDto, Guid patientId)
         {
             return new Appointment
             {
                 AppointmentDate = appointmentDto.AppointmentDate,
                 Reason = appointmentDto.Reason,
+                PatientId = patientId,
+                DoctorId = appointmentDto.DoctorId
             };
         }
     }

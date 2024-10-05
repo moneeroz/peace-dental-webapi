@@ -6,21 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Appointment;
+using peace_api.Interfaces;
 using peace_api.Mappers;
 
 namespace peace_api.Controllers
 {
     [Route("api/appointments")]
     [ApiController]
-    public class AppointmentController(ApplicationDBContext context) : ControllerBase
+    public class AppointmentController(ApplicationDBContext context, IAppointmentRepository appointmentRepo, IPatientRepository patientRepo) : ControllerBase
     {
         private readonly ApplicationDBContext _context = context;
+        private readonly IAppointmentRepository _appointmentRepo = appointmentRepo;
+        private readonly IPatientRepository _patientRepo = patientRepo;
 
         // GET: api/appointments
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var appointments = await _context.Appointments.ToListAsync();
+            var appointments = await _appointmentRepo.GetAllAsync();
+
             var appointmentDto = appointments.Select(x => x.ToAppointmentDto());
 
             return Ok(appointmentDto);
@@ -30,7 +34,7 @@ namespace peace_api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            var appointment = await _appointmentRepo.GetByIdAsync(id);
 
             if (appointment == null)
             {
@@ -41,12 +45,17 @@ namespace peace_api.Controllers
         }
 
         // POST: api/appointments
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CreateAppointmentDto appointmentDto)
+        [HttpPost("{patientId}")]
+        public async Task<IActionResult> Post([FromRoute] Guid patientId, [FromBody] CreateAppointmentDto appointmentDto)
         {
-            var appointment = appointmentDto.ToAppointmentFromCreateDto();
-            await _context.Appointments.AddAsync(appointment);
-            await _context.SaveChangesAsync();
+            if (!await _patientRepo.PatientExists(patientId))
+            {
+                return BadRequest("Patient does not exist");
+            }
+
+            var appointment = appointmentDto.ToAppointmentFromCreateDto(patientId);
+
+            await _appointmentRepo.CreateAsync(appointment);
 
             return CreatedAtAction(nameof(GetById), new { id = appointment.Id }, appointment.ToAppointmentDto());
         }
@@ -55,16 +64,12 @@ namespace peace_api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] UpdateAppointmentDto updateDto)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            var appointment = await _appointmentRepo.UpdateAsync(id, updateDto);
 
             if (appointment == null)
             {
                 return NotFound();
             }
-
-            appointment.Reason = updateDto.Reason;
-            appointment.AppointmentDate = updateDto.AppointmentDate;
-            await _context.SaveChangesAsync();
 
             return Ok(appointment.ToAppointmentDto());
         }
@@ -73,15 +78,12 @@ namespace peace_api.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            var appointment = await _appointmentRepo.DeleteAsync(id);
 
             if (appointment == null)
             {
                 return NotFound();
             }
-
-            _context.Appointments.Remove(appointment);
-            await _context.SaveChangesAsync();
 
             return NoContent();
         }
