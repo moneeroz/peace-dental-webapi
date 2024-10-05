@@ -42,6 +42,7 @@ namespace peace_api.Repository
         {
             var invoices = _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
 
+            // Check for query params and filter the results
             if (!string.IsNullOrWhiteSpace(query.PatientName))
             {
                 invoices = invoices.Where(a => a.Patient.Name.Contains(query.PatientName));
@@ -57,9 +58,14 @@ namespace peace_api.Repository
                 invoices = invoices.Where(a => a.Reason.Contains(query.Reason));
             }
 
+            // Sort results
             invoices = invoices.OrderByDescending(a => a.CreatedAt);
 
-            return await invoices.ToListAsync();
+            // Pagination
+            var offset = (query.Page - 1) * query.PageSize;
+            var limit = query.PageSize;
+
+            return await invoices.Skip(offset).Take(limit).ToListAsync();
         }
 
         public async Task<Invoice?> GetByIdAsync(Guid id)

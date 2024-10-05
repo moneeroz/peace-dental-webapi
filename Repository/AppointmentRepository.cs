@@ -42,6 +42,7 @@ namespace peace_api.Repository
         {
             var appointments = _context.Appointments.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
 
+            // Check for query params and filter the results
             if (!string.IsNullOrWhiteSpace(query.PatientName))
             {
                 appointments = appointments.Where(a => a.Patient.Name.Contains(query.PatientName));
@@ -62,9 +63,15 @@ namespace peace_api.Repository
                 appointments = appointments.Where(a => a.Reason.Contains(query.Reason));
             }
 
+            // Sort results
             appointments = appointments.OrderByDescending(a => a.AppointmentDate);
 
-            return await appointments.ToListAsync();
+            // Pagination
+            var offset = (query.Page - 1) * query.PageSize;
+            var limit = query.PageSize;
+
+
+            return await appointments.Skip(offset).Take(limit).ToListAsync();
         }
 
         public async Task<Appointment?> GetByIdAsync(Guid id)

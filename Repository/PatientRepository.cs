@@ -42,6 +42,7 @@ namespace peace_api.Repository
         {
             var patients = _context.Patients.AsQueryable();
 
+            // Check for query params and filter the results
             if (!string.IsNullOrWhiteSpace(query.PatientName))
             {
                 patients = patients.Where(a => a.Name.Contains(query.PatientName));
@@ -52,9 +53,14 @@ namespace peace_api.Repository
                 patients = patients.Where(a => a.Phone.Contains(query.PhoneNumber));
             }
 
+            // Sort results
             patients = patients.OrderBy(a => a.Name);
 
-            return await patients.ToListAsync();
+            // Pagination
+            var offset = (query.Page - 1) * query.PageSize;
+            var limit = query.PageSize;
+
+            return await patients.Skip(offset).Take(limit).ToListAsync();
         }
 
         public async Task<Patient?> GetByIdAsync(Guid id)
