@@ -57,6 +57,8 @@ namespace peace_api.Repository
                 invoices = invoices.Where(a => a.Reason.Contains(query.Reason));
             }
 
+            invoices = invoices.OrderByDescending(a => a.CreatedAt);
+
             return await invoices.ToListAsync();
         }
 

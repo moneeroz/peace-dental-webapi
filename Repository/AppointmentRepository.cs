@@ -62,6 +62,8 @@ namespace peace_api.Repository
                 appointments = appointments.Where(a => a.Reason.Contains(query.Reason));
             }
 
+            appointments = appointments.OrderByDescending(a => a.AppointmentDate);
+
             return await appointments.ToListAsync();
         }
 

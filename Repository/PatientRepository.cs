@@ -52,6 +52,8 @@ namespace peace_api.Repository
                 patients = patients.Where(a => a.Phone.Contains(query.PhoneNumber));
             }
 
+            patients = patients.OrderBy(a => a.Name);
+
             return await patients.ToListAsync();
         }
 
