@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Patient;
+using peace_api.Helpers;
 using peace_api.Interfaces;
 using peace_api.Models;
 
@@ -37,9 +38,21 @@ namespace peace_api.Repository
             return patient;
         }
 
-        public async Task<List<Patient>> GetAllAsync()
+        public async Task<List<Patient>> GetAllAsync(QueryObject query)
         {
-            return await _context.Patients.ToListAsync();
+            var patients = _context.Patients.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.PatientName))
+            {
+                patients = patients.Where(a => a.Name.Contains(query.PatientName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.PhoneNumber))
+            {
+                patients = patients.Where(a => a.Phone.Contains(query.PhoneNumber));
+            }
+
+            return await patients.ToListAsync();
         }
 
         public async Task<Patient?> GetByIdAsync(Guid id)

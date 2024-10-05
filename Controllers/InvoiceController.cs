@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Invoice;
+using peace_api.Helpers;
 using peace_api.Interfaces;
 using peace_api.Mappers;
 
@@ -21,12 +22,12 @@ namespace peace_api.Controllers
 
         // GET: api/invoices
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var invoices = await _invoiceRepo.GetAllAsync();
+            var invoices = await _invoiceRepo.GetAllAsync(query);
 
             var invoiceDto = invoices.Select(x => x.ToInvoiceDto());
 

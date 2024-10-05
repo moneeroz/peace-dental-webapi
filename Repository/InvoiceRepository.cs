@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Invoice;
+using peace_api.Helpers;
 using peace_api.Interfaces;
 using peace_api.Models;
 
@@ -37,9 +38,26 @@ namespace peace_api.Repository
             return invoice;
         }
 
-        public async Task<List<Invoice>> GetAllAsync()
+        public async Task<List<Invoice>> GetAllAsync(QueryObject query)
         {
-            return await _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).ToListAsync();
+            var invoices = _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.PatientName))
+            {
+                invoices = invoices.Where(a => a.Patient.Name.Contains(query.PatientName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.DoctorName))
+            {
+                invoices = invoices.Where(a => a.Doctor.Name.Contains(query.DoctorName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Reason))
+            {
+                invoices = invoices.Where(a => a.Reason.Contains(query.Reason));
+            }
+
+            return await invoices.ToListAsync();
         }
 
         public async Task<Invoice?> GetByIdAsync(Guid id)

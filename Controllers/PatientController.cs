@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Patient;
+using peace_api.Helpers;
 using peace_api.Interfaces;
 using peace_api.Mappers;
 
@@ -20,12 +21,12 @@ namespace peace_api.Controllers
 
         // GET: api/patients
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var patients = await _patientRepo.GetAllAsync();
+            var patients = await _patientRepo.GetAllAsync(query);
 
             var patientDto = patients.Select(x => x.ToPatientDto());
 

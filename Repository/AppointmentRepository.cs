@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Appointment;
+using peace_api.Helpers;
 using peace_api.Interfaces;
 using peace_api.Models;
 
@@ -37,9 +38,31 @@ namespace peace_api.Repository
             return appointment;
         }
 
-        public async Task<List<Appointment>> GetAllAsync()
+        public async Task<List<Appointment>> GetAllAsync(QueryObject query)
         {
-            return await _context.Appointments.Include(a => a.Patient).Include(a => a.Doctor).ToListAsync();
+            var appointments = _context.Appointments.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.PatientName))
+            {
+                appointments = appointments.Where(a => a.Patient.Name.Contains(query.PatientName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.DoctorName))
+            {
+                appointments = appointments.Where(a => a.Doctor.Name.Contains(query.DoctorName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.PhoneNumber))
+            {
+                appointments = appointments.Where(a => a.Patient.Phone.Contains(query.PhoneNumber));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Reason))
+            {
+                appointments = appointments.Where(a => a.Reason.Contains(query.Reason));
+            }
+
+            return await appointments.ToListAsync();
         }
 
         public async Task<Appointment?> GetByIdAsync(Guid id)

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Appointment;
+using peace_api.Helpers;
 using peace_api.Interfaces;
 using peace_api.Mappers;
 
@@ -21,13 +22,13 @@ namespace peace_api.Controllers
 
         // GET: api/appointments
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
 
-            var appointments = await _appointmentRepo.GetAllAsync();
+            var appointments = await _appointmentRepo.GetAllAsync(query);
 
             var appointmentDto = appointments.Select(x => x.ToAppointmentDto());
 
