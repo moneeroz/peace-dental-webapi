@@ -8,6 +8,7 @@ using peace_api.Models;
 using peace_api.Repository;
 using dotenv.net;
 using System.Text;
+using peace_api.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,9 +30,12 @@ builder.Services.AddDbContext<ApplicationDBContext>();
 builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
 {
     options.Password.RequireDigit = true;
+    options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 6;
+
+    options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDBContext>();
 
@@ -58,11 +62,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Repositories
+// Repositories and Services
 builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 

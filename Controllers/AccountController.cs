@@ -5,15 +5,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using peace_api.Dtos.Account;
+using peace_api.Interfaces;
 using peace_api.Models;
 
 namespace peace_api.Controllers
 {
     [Route("api/account")]
     [ApiController]
-    public class AccountController(UserManager<AppUser> userManager) : ControllerBase
+    public class AccountController(UserManager<AppUser> userManager, ITokenService tokenService) : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager = userManager;
+        private readonly ITokenService _tokenService = tokenService;
 
         // POST: api/account/register
         [HttpPost("register")]
@@ -38,7 +40,14 @@ namespace peace_api.Controllers
 
                     if (roleResult.Succeeded)
                     {
-                        return Ok("User created successfully");
+                        var newUser = new NewUserDto
+                        {
+                            UserName = appUser.UserName,
+                            Email = appUser.Email,
+                            Token = _tokenService.CreateToken(appUser)
+                        };
+
+                        return Ok(newUser);
                     }
                     else
                     {
