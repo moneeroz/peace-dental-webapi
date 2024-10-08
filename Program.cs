@@ -96,6 +96,8 @@ builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
 builder.Services.AddScoped<IInvoiceRepository, InvoiceRepository>();
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IOverviewRepository, OverviewRepository>();
+builder.Services.AddScoped<IRevenueRepository, RevenueRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
