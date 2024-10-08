@@ -16,6 +16,7 @@ namespace peace_api.Mappers
                 Id = appointment.Id,
                 Reason = appointment.Reason,
                 AppointmentDate = appointment.AppointmentDate,
+                DoctorId = appointment.DoctorId,
                 DoctorName = appointment.Doctor?.Name ?? string.Empty,
                 PatientName = appointment.Patient?.Name ?? string.Empty,
                 PhoneNumber = appointment.Patient?.Phone ?? string.Empty

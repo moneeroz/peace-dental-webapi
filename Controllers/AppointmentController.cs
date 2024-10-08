@@ -15,7 +15,7 @@ namespace peace_api.Controllers
 {
     [Route("api/appointments")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class AppointmentController(ApplicationDBContext context, IAppointmentRepository appointmentRepo, IPatientRepository patientRepo) : ControllerBase
     {
         private readonly ApplicationDBContext _context = context;
