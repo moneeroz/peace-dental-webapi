@@ -58,6 +58,16 @@ namespace peace_api.Repository
 
             return await patients.Skip(offset).Take(limit).ToListAsync();
         }
+        public async Task<List<Patient>> GetAllPatientsAsync()
+        {
+            var patients = _context.Patients.AsQueryable();
+
+            // Sort results
+            patients = patients.OrderBy(a => a.Name);
+
+
+            return await patients.ToListAsync();
+        }
 
         public async Task<Patient?> GetByIdAsync(Guid id)
         {
@@ -100,6 +110,28 @@ namespace peace_api.Repository
             var itemsPerPage = query.PageSize;
 
             return (int)Math.Ceiling((double)totalItems / itemsPerPage);
+        }
+
+        public async Task<List<Invoice>> GetPatientInvoicesAsync(Guid id, QueryObject query)
+        {
+            var invoices = _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+
+            // Check for query term and filter the results
+            if (!string.IsNullOrWhiteSpace(query.term))
+            {
+                invoices = invoices.Where(a => a.Patient.Name.Contains(query.term) ||
+                             a.Doctor.Name.Contains(query.term) ||
+                             a.Reason.Contains(query.term));
+            }
+
+            // Sort results
+            invoices = invoices.OrderBy(a => a.CreatedAt);
+
+            // Pagination
+            var offset = (query.Page - 1) * query.PageSize;
+            var limit = query.PageSize;
+
+            return await invoices.Where(a => a.PatientId == id).Skip(offset).Take(limit).ToListAsync();
         }
     }
 }

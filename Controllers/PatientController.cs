@@ -111,5 +111,33 @@ namespace peace_api.Controllers
 
             return Ok(count);
         }
+
+        // GET: api/patients/invoices
+        [HttpGet("invoices/{id:guid}")]
+        public async Task<IActionResult> GetPatientInvoices([FromRoute] Guid id, [FromQuery] QueryObject query)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var invoices = await _patientRepo.GetPatientInvoicesAsync(id, query);
+
+            var invoiceDto = invoices.Select(x => x.ToInvoiceDto());
+
+            return Ok(invoiceDto);
+        }
+
+        // GET: api/patients/all
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllPatients()
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var patients = await _patientRepo.GetAllPatientsAsync();
+
+            var patientDto = patients.Select(x => x.ToPatientDto());
+
+            return Ok(patientDto);
+        }
     }
 }

@@ -19,5 +19,8 @@ namespace peace_api.Interfaces
         Task<bool> PatientExists(Guid id);
 
         Task<int> GetPageCountAsync(QueryObject query);
+
+        Task<List<Invoice>> GetPatientInvoicesAsync(Guid id, QueryObject query);
+        Task<List<Patient>> GetAllPatientsAsync();
     }
 }
