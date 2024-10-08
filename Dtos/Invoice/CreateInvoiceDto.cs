@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using peace_api.Models;
 
 namespace peace_api.Dtos.Invoice
 {
@@ -15,6 +16,8 @@ namespace peace_api.Dtos.Invoice
         [MinLength(4, ErrorMessage = "Reason must be at least 4 characters long")]
         [MaxLength(255, ErrorMessage = "Reason must be at most 255 characters long")]
         public string Reason { get; set; } = string.Empty;
+        [Required]
+        public Status Status { get; set; }
         [Required]
         public Guid DoctorId { get; set; }
     }
