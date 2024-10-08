@@ -15,5 +15,6 @@ namespace peace_api.Interfaces
         Task<Appointment> CreateAsync(Appointment appointment);
         Task<Appointment?> UpdateAsync(Guid id, UpdateAppointmentDto appointmentDto);
         Task<Appointment?> DeleteAsync(Guid id);
+        Task<int> GetPageCountAsync(QueryObject query);
     }
 }

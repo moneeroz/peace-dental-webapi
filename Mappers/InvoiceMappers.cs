@@ -15,7 +15,7 @@ namespace peace_api.Mappers
             {
                 Id = invoice.Id,
                 Amount = invoice.Amount,
-                Status = invoice.Status == Status.Paid ? "Paid" : "Pending",
+                Status = invoice.Status == Status.Paid ? "paid" : "pending",
                 Reason = invoice.Reason,
                 DoctorName = invoice.Doctor?.Name ?? string.Empty,
                 PatientName = invoice.Patient?.Name ?? string.Empty,

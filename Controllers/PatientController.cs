@@ -15,7 +15,7 @@ namespace peace_api.Controllers
 {
     [Route("api/patients")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class PatientController(ApplicationDBContext context, IPatientRepository patientRepo) : ControllerBase
     {
         private readonly ApplicationDBContext _context = context;
@@ -98,6 +98,18 @@ namespace peace_api.Controllers
             }
 
             return NoContent();
+        }
+
+        // GET: api/patients/count
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCount([FromQuery] QueryObject query)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var count = await _patientRepo.GetPageCountAsync(query);
+
+            return Ok(count);
         }
     }
 }

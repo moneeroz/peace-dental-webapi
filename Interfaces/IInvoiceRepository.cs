@@ -15,5 +15,6 @@ namespace peace_api.Interfaces
         Task<Invoice> CreateAsync(Invoice invoice);
         Task<Invoice?> UpdateAsync(Guid id, UpdateInvoiceDto invoiceDto);
         Task<Invoice?> DeleteAsync(Guid id);
+        Task<int> GetPageCountAsync(QueryObject query);
     }
 }

@@ -106,5 +106,17 @@ namespace peace_api.Controllers
 
             return NoContent();
         }
+
+        // GET: api/appointments/count
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCount([FromQuery] QueryObject query)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var count = await _appointmentRepo.GetPageCountAsync(query);
+
+            return Ok(count);
+        }
     }
 }

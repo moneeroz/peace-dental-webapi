@@ -42,20 +42,12 @@ namespace peace_api.Repository
         {
             var invoices = _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
 
-            // Check for query params and filter the results
-            if (!string.IsNullOrWhiteSpace(query.PatientName))
+            // Check for query term and filter the results
+            if (!string.IsNullOrWhiteSpace(query.term))
             {
-                invoices = invoices.Where(a => a.Patient.Name.Contains(query.PatientName));
-            }
-
-            if (!string.IsNullOrWhiteSpace(query.DoctorName))
-            {
-                invoices = invoices.Where(a => a.Doctor.Name.Contains(query.DoctorName));
-            }
-
-            if (!string.IsNullOrWhiteSpace(query.Reason))
-            {
-                invoices = invoices.Where(a => a.Reason.Contains(query.Reason));
+                invoices = invoices.Where(a => a.Patient.Name.Contains(query.term) ||
+                            a.Doctor.Name.Contains(query.term) ||
+                            a.Reason.Contains(query.term));
             }
 
             // Sort results
@@ -89,6 +81,24 @@ namespace peace_api.Repository
             await _context.SaveChangesAsync();
 
             return existingInvoice;
+        }
+
+        public async Task<int> GetPageCountAsync(QueryObject query)
+        {
+            var invoices = _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+
+            // Check for query term and filter the results
+            if (!string.IsNullOrWhiteSpace(query.term))
+            {
+                invoices = invoices.Where(a => a.Patient.Name.Contains(query.term) ||
+                            a.Doctor.Name.Contains(query.term) ||
+                            a.Reason.Contains(query.term));
+            }
+
+            var totalItems = await invoices.CountAsync();
+            var itemsPerPage = query.PageSize;
+
+            return (int)Math.Ceiling((double)totalItems / itemsPerPage);
         }
     }
 }

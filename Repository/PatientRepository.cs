@@ -40,17 +40,13 @@ namespace peace_api.Repository
 
         public async Task<List<Patient>> GetAllAsync(QueryObject query)
         {
-            var patients = _context.Patients.AsQueryable();
+            var patients = _context.Patients.Include(a => a.Invoices).AsQueryable();
 
-            // Check for query params and filter the results
-            if (!string.IsNullOrWhiteSpace(query.PatientName))
+            // Check for query term and filter the results
+            if (!string.IsNullOrWhiteSpace(query.term))
             {
-                patients = patients.Where(a => a.Name.Contains(query.PatientName));
-            }
-
-            if (!string.IsNullOrWhiteSpace(query.PhoneNumber))
-            {
-                patients = patients.Where(a => a.Phone.Contains(query.PhoneNumber));
+                patients = patients.Where(a => a.Name.Contains(query.term) ||
+                            a.Phone.Contains(query.term));
             }
 
             // Sort results
@@ -87,6 +83,23 @@ namespace peace_api.Repository
             await _context.SaveChangesAsync();
 
             return existingPatient;
+        }
+
+        public async Task<int> GetPageCountAsync(QueryObject query)
+        {
+            var patients = _context.Patients.Include(a => a.Invoices).AsQueryable();
+
+            // Check for query term and filter the results
+            if (!string.IsNullOrWhiteSpace(query.term))
+            {
+                patients = patients.Where(a => a.Name.Contains(query.term) ||
+                            a.Phone.Contains(query.term));
+            }
+
+            var totalItems = await patients.CountAsync();
+            var itemsPerPage = query.PageSize;
+
+            return (int)Math.Ceiling((double)totalItems / itemsPerPage);
         }
     }
 }

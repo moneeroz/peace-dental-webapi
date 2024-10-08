@@ -17,5 +17,7 @@ namespace peace_api.Interfaces
         Task<Patient?> DeleteAsync(Guid id);
 
         Task<bool> PatientExists(Guid id);
+
+        Task<int> GetPageCountAsync(QueryObject query);
     }
 }

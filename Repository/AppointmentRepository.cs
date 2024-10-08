@@ -42,25 +42,14 @@ namespace peace_api.Repository
         {
             var appointments = _context.Appointments.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
 
-            // Check for query params and filter the results
-            if (!string.IsNullOrWhiteSpace(query.PatientName))
+            // Check for query term and filter the results
+            if (!string.IsNullOrWhiteSpace(query.term))
             {
-                appointments = appointments.Where(a => a.Patient.Name.Contains(query.PatientName));
-            }
-
-            if (!string.IsNullOrWhiteSpace(query.DoctorName))
-            {
-                appointments = appointments.Where(a => a.Doctor.Name.Contains(query.DoctorName));
-            }
-
-            if (!string.IsNullOrWhiteSpace(query.PhoneNumber))
-            {
-                appointments = appointments.Where(a => a.Patient.Phone.Contains(query.PhoneNumber));
-            }
-
-            if (!string.IsNullOrWhiteSpace(query.Reason))
-            {
-                appointments = appointments.Where(a => a.Reason.Contains(query.Reason));
+                appointments = appointments.Where(a => a.Patient.Name.Contains(query.term) ||
+                            a.Patient.Phone.Contains(query.term) ||
+                            a.Doctor.Name.Contains(query.term) ||
+                            a.AppointmentDate.ToString().Contains(query.term) ||
+                            a.Reason.Contains(query.term));
             }
 
             // Sort results
@@ -95,6 +84,26 @@ namespace peace_api.Repository
             await _context.SaveChangesAsync();
 
             return existingAppointment;
+        }
+
+        public async Task<int> GetPageCountAsync(QueryObject query)
+        {
+            var appointments = _context.Appointments.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+
+            // Check for query term and filter the results
+            if (!string.IsNullOrWhiteSpace(query.term))
+            {
+                appointments = appointments.Where(a => a.Patient.Name.Contains(query.term) ||
+                            a.Patient.Phone.Contains(query.term) ||
+                            a.Doctor.Name.Contains(query.term) ||
+                            a.AppointmentDate.ToString().Contains(query.term) ||
+                            a.Reason.Contains(query.term));
+            }
+
+            var totalItems = await appointments.CountAsync();
+            var itemsPerPage = query.PageSize;
+
+            return (int)Math.Ceiling((double)totalItems / itemsPerPage);
         }
     }
 }

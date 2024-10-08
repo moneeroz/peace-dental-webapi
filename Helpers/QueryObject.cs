@@ -8,13 +8,10 @@ namespace peace_api.Helpers
     public class QueryObject
     {
         // filter params
-        public string? PatientName { get; set; } = null;
-        public string? DoctorName { get; set; } = null;
-        public string? PhoneNumber { get; set; } = null;
-        public string? Reason { get; set; } = null;
+        public string? term { get; set; } = null;
 
         // pagination params
         public int Page { get; set; } = 1;
-        public int PageSize { get; set; } = 2;
+        public int PageSize { get; set; } = 8;
     }
 }

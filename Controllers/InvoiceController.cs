@@ -15,7 +15,7 @@ namespace peace_api.Controllers
 {
     [Route("api/invoices")]
     [ApiController]
-    [Authorize]
+    // [Authorize]
     public class InvoiceController(ApplicationDBContext context, IInvoiceRepository invoiceRepo, IPatientRepository patientRepo) : ControllerBase
     {
         private readonly ApplicationDBContext _context = context;
@@ -104,6 +104,18 @@ namespace peace_api.Controllers
             }
 
             return NoContent();
+        }
+
+        // GET: api/invoices/count
+        [HttpGet("count")]
+        public async Task<IActionResult> GetCount([FromQuery] QueryObject query)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var count = await _invoiceRepo.GetPageCountAsync(query);
+
+            return Ok(count);
         }
     }
 }
