@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using peace_api.Dtos.Account;
 using peace_api.Interfaces;
 using peace_api.Models;
@@ -12,6 +16,7 @@ namespace peace_api.Controllers
 {
     [Route("api/account")]
     [ApiController]
+    [AllowAnonymous]
     public class AccountController(UserManager<AppUser> userManager, ITokenService tokenService, SignInManager<AppUser> signInManager) : ControllerBase
     {
         private readonly UserManager<AppUser> _userManager = userManager;
@@ -29,7 +34,7 @@ namespace peace_api.Controllers
 
                 var appUser = new AppUser
                 {
-                    UserName = registerDto.Username,
+                    UserName = registerDto.UserName,
                     Email = registerDto.Email,
                 };
 
@@ -45,7 +50,6 @@ namespace peace_api.Controllers
                         {
                             UserName = appUser.UserName,
                             Email = appUser.Email,
-                            Token = _tokenService.CreateToken(appUser)
                         };
 
                         return Ok(newUser);
@@ -92,10 +96,100 @@ namespace peace_api.Controllers
             {
                 UserName = user.UserName,
                 Email = user.Email,
-                Token = _tokenService.CreateToken(user)
+                Token = await _tokenService.CreateToken(user),
+                RefreshToken = await _tokenService.CreateToken(user, 7)
             };
 
+            user.RefreshToken = loggedInUser.RefreshToken;
+            user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+            await _userManager.UpdateAsync(user);
+
             return Ok(loggedInUser);
+        }
+
+        //POST: api/account/refresh-token
+        [HttpPost("verify-token")]
+        public async Task<ActionResult> VerifyToken([FromBody] RefreshTokenDto refreshTokenDto)
+        {
+
+            try
+            {
+                var token = Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last();
+
+                var TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
+                    ValidateAudience = true,
+                    ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!)),
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateLifetime = false,
+
+                };
+
+                // validate the token
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var validatedToken = tokenHandler.ValidateToken(token, TokenValidationParameters, out var securityToken);
+
+                if (securityToken is not JwtSecurityToken jwtSecurityToken)
+                    return Forbid();
+
+                var userId = jwtSecurityToken.Claims.First(c => c.Type == "userId").Value;
+
+
+                var user = await _userManager.FindByIdAsync(userId);
+
+                if (user == null || user.RefreshToken != refreshTokenDto.RefreshToken)
+                {
+                    return Forbid();
+                }
+
+                if (user.RefreshTokenExpiry < DateTime.UtcNow)
+                {
+                    return Forbid();
+                }
+
+                var loggedInUser = new NewUserDto
+                {
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Token = await _tokenService.CreateToken(user),
+                    RefreshToken = await _tokenService.CreateToken(user, 7)
+                };
+
+                user.RefreshToken = loggedInUser.RefreshToken;
+                user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(7);
+                await _userManager.UpdateAsync(user);
+
+                return Ok(loggedInUser);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new { e.Message });
+            }
+        }
+
+        //GET:api/account/logout
+        [HttpGet("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            var userId = User.Claims.First(c => c.Type == "userId").Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
+            user.RefreshToken = null;
+            user.RefreshTokenExpiry = null;
+            await _userManager.UpdateAsync(user);
+
+            return NoContent();
         }
     }
 }

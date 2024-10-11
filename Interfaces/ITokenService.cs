@@ -8,6 +8,6 @@ namespace peace_api.Interfaces
 {
     public interface ITokenService
     {
-        string CreateToken(AppUser user);
+        Task<string> CreateToken(AppUser user, int days = 1);
     }
 }
