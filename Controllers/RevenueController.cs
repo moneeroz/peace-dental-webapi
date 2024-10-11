@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using peace_api.Helpers;
 using peace_api.Interfaces;
@@ -10,6 +7,7 @@ namespace peace_api.Controllers
 {
     [Route("api/revenue")]
     [ApiController]
+    [Authorize(Policy = "Admin")]
     public class RevenueController(IRevenueRepository revenueRepo) : ControllerBase
     {
         private readonly IRevenueRepository _revenueRepo = revenueRepo;

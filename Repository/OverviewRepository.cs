@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Overview;
@@ -17,7 +12,6 @@ namespace peace_api.Repository
 
         public async Task<List<Appointment>> GetCalenderDataAsync()
         {
-            // TODO: make sure the date time zone is accurate and update the calculations accordingly
             var sixMonthsAgo = DateTime.UtcNow.AddMonths(-6).AddHours(-6).Date;
             var appointments = _context.Appointments.Include(a => a.Doctor).Include(a => a.Patient).Where(a => a.AppointmentDate.Date >= sixMonthsAgo).AsQueryable();
 
@@ -26,7 +20,6 @@ namespace peace_api.Repository
 
         public async Task<CardDataDto> GetCardDataAsync()
         {
-            // TODO: make sure the date time zone is accurate and update the calculations accordingly
             var today = DateTime.UtcNow.AddHours(-6).Date;
             var tomorrow = today.AddDays(1);
 

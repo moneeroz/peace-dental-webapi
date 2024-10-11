@@ -51,8 +51,6 @@ namespace peace_api.Extensions
                     ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!)),
-                    //
-                    ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
 
                 };

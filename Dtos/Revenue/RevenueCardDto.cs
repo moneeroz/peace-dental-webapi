@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
 namespace peace_api.Dtos.Revenue
 {
     public class RevenueCardDto

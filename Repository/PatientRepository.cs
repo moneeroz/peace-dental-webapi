@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Patient;
@@ -45,8 +41,9 @@ namespace peace_api.Repository
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                patients = patients.Where(a => a.Name.Contains(query.term) ||
-                            a.Phone.Contains(query.term));
+                var term = query.term.ToLower();
+                patients = patients.Where(a => a.Name.ToLower().Contains(term) ||
+                            a.Phone.Contains(term));
             }
 
             // Sort results
@@ -102,8 +99,9 @@ namespace peace_api.Repository
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                patients = patients.Where(a => a.Name.Contains(query.term) ||
-                            a.Phone.Contains(query.term));
+                var term = query.term.ToLower();
+                patients = patients.Where(a => a.Name.ToLower().Contains(term) ||
+                            a.Phone.Contains(term));
             }
 
             var totalItems = await patients.CountAsync();
@@ -119,9 +117,10 @@ namespace peace_api.Repository
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                invoices = invoices.Where(a => a.Patient.Name.Contains(query.term) ||
-                             a.Doctor.Name.Contains(query.term) ||
-                             a.Reason.Contains(query.term));
+                var term = query.term.ToLower();
+                invoices = invoices.Where(a => a.Patient.Name.ToLower().Contains(term) ||
+                             a.Doctor.Name.ToLower().Contains(term) ||
+                             a.Reason.ToLower().Contains(term));
             }
 
             // Sort results

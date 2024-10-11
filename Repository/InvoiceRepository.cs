@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Invoice;
@@ -45,9 +41,10 @@ namespace peace_api.Repository
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                invoices = invoices.Where(a => a.Patient.Name.Contains(query.term) ||
-                            a.Doctor.Name.Contains(query.term) ||
-                            a.Reason.Contains(query.term));
+                var term = query.term.ToLower();
+                invoices = invoices.Where(a => a.Patient.Name.ToLower().Contains(term) ||
+                            a.Doctor.Name.ToLower().Contains(term) ||
+                            a.Reason.ToLower().Contains(term));
             }
 
             // Sort results
@@ -90,9 +87,10 @@ namespace peace_api.Repository
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                invoices = invoices.Where(a => a.Patient.Name.Contains(query.term) ||
-                            a.Doctor.Name.Contains(query.term) ||
-                            a.Reason.Contains(query.term));
+                var term = query.term.ToLower();
+                invoices = invoices.Where(a => a.Patient.Name.ToLower().Contains(term) ||
+                            a.Doctor.Name.ToLower().Contains(term) ||
+                            a.Reason.ToLower().Contains(term));
             }
 
             var totalItems = await invoices.CountAsync();

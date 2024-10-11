@@ -45,11 +45,12 @@ namespace peace_api.Repository
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                appointments = appointments.Where(a => a.Patient.Name.Contains(query.term) ||
-                            a.Patient.Phone.Contains(query.term) ||
-                            a.Doctor.Name.Contains(query.term) ||
-                            a.AppointmentDate.ToString().Contains(query.term) ||
-                            a.Reason.Contains(query.term));
+                var term = query.term.ToLower();
+                appointments = appointments.Where(a => a.Patient.Name.ToLower().Contains(term) ||
+                            a.Patient.Phone.Contains(term) ||
+                            a.Doctor.Name.ToLower().Contains(term) ||
+                            a.AppointmentDate.ToString().Contains(term) ||
+                            a.Reason.ToLower().Contains(term));
             }
 
             // Sort results
@@ -93,11 +94,12 @@ namespace peace_api.Repository
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                appointments = appointments.Where(a => a.Patient.Name.Contains(query.term) ||
-                            a.Patient.Phone.Contains(query.term) ||
-                            a.Doctor.Name.Contains(query.term) ||
-                            a.AppointmentDate.ToString().Contains(query.term) ||
-                            a.Reason.Contains(query.term));
+                var term = query.term.ToLower();
+                appointments = appointments.Where(a => a.Patient.Name.ToLower().Contains(term) ||
+                            a.Patient.Phone.Contains(term) ||
+                            a.Doctor.Name.ToLower().Contains(term) ||
+                            a.AppointmentDate.ToString().Contains(term) ||
+                            a.Reason.ToLower().Contains(term));
             }
 
             var totalItems = await appointments.CountAsync();

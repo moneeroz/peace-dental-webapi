@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Patient;
 using peace_api.Helpers;
@@ -15,7 +9,6 @@ namespace peace_api.Controllers
 {
     [Route("api/patients")]
     [ApiController]
-    // [Authorize]
     public class PatientController(ApplicationDBContext context, IPatientRepository patientRepo) : ControllerBase
     {
         private readonly ApplicationDBContext _context = context;
