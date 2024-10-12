@@ -1,6 +1,6 @@
 # Peace Dental Web-API
 
-The Peace Dental web api is a dotnet C# server designed to power the Peace Dental web application. This robust server handles user authentication, data management, and API interactions with a PostgreSQL database using Entity Framework. The server follows the MVC architecture and incorporates JWT for secure authentication and authorization using dotnet Identity and JWT Bearer authentication.
+Peace Dental web api is a dotnet C# server designed to power the Peace Dental web application. This robust server handles user authentication, data management, and API interactions with a PostgreSQL database using Entity Framework. The server follows the MVC architecture and incorporates JWT for secure authentication and authorization using dotnet Identity and JWT Bearer authentication.
 
 ## Table of Contents
 
