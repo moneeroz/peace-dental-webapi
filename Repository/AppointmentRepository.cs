@@ -25,7 +25,7 @@ namespace peace_api.Repository
 
         public async Task<Appointment?> DeleteAsync(Guid id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            Appointment? appointment = await _context.Appointments.FindAsync(id);
 
             if (appointment == null)
             {
@@ -40,12 +40,14 @@ namespace peace_api.Repository
 
         public async Task<List<Appointment>> GetAllAsync(QueryObject query)
         {
-            var appointments = _context.Appointments.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+            IQueryable<Appointment>? appointments = _context.Appointments.Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .AsQueryable();
 
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                var term = query.term.ToLower();
+                string? term = query.term.ToLower();
                 appointments = appointments.Where(a => a.Patient.Name.ToLower().Contains(term) ||
                             a.Patient.Phone.Contains(term) ||
                             a.Doctor.Name.ToLower().Contains(term) ||
@@ -57,8 +59,8 @@ namespace peace_api.Repository
             appointments = appointments.OrderByDescending(a => a.AppointmentDate);
 
             // Pagination
-            var offset = (query.Page - 1) * query.PageSize;
-            var limit = query.PageSize;
+            int offset = (query.Page - 1) * query.PageSize;
+            int limit = query.PageSize;
 
 
             return await appointments.Skip(offset).Take(limit).ToListAsync();
@@ -66,12 +68,14 @@ namespace peace_api.Repository
 
         public async Task<Appointment?> GetByIdAsync(Guid id)
         {
-            return await _context.Appointments.Include(a => a.Patient).Include(a => a.Doctor).FirstOrDefaultAsync(a => a.Id == id);
+            return await _context.Appointments.Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<Appointment?> UpdateAsync(Guid id, UpdateAppointmentDto appointmentDto)
         {
-            var existingAppointment = await _context.Appointments.FindAsync(id);
+            Appointment? existingAppointment = await _context.Appointments.FindAsync(id);
 
             if (existingAppointment == null)
             {
@@ -89,12 +93,14 @@ namespace peace_api.Repository
 
         public async Task<int> GetPageCountAsync(QueryObject query)
         {
-            var appointments = _context.Appointments.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+            IQueryable<Appointment>? appointments = _context.Appointments.Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .AsQueryable();
 
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                var term = query.term.ToLower();
+                string? term = query.term.ToLower();
                 appointments = appointments.Where(a => a.Patient.Name.ToLower().Contains(term) ||
                             a.Patient.Phone.Contains(term) ||
                             a.Doctor.Name.ToLower().Contains(term) ||
@@ -102,8 +108,8 @@ namespace peace_api.Repository
                             a.Reason.ToLower().Contains(term));
             }
 
-            var totalItems = await appointments.CountAsync();
-            var itemsPerPage = query.PageSize;
+            int totalItems = await appointments.CountAsync();
+            int itemsPerPage = query.PageSize;
 
             return (int)Math.Ceiling((double)totalItems / itemsPerPage);
         }

@@ -3,6 +3,7 @@ using peace_api.Data;
 using peace_api.Dtos.Doctor;
 using peace_api.Interfaces;
 using peace_api.Mappers;
+using peace_api.Models;
 
 namespace peace_api.Controllers
 {
@@ -20,9 +21,9 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var doctors = await _doctorRepo.GetAllAsync();
+            List<Doctor>? doctors = await _doctorRepo.GetAllAsync();
 
-            var doctorDto = doctors.Select(x => x.ToDoctorDto());
+            IEnumerable<DoctorDto>? doctorDto = doctors.Select(x => x.ToDoctorDto());
 
             return Ok(doctorDto);
         }
@@ -34,7 +35,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var doctor = await _doctorRepo.GetByIdAsync(id);
+            Doctor? doctor = await _doctorRepo.GetByIdAsync(id);
 
             if (doctor == null)
             {
@@ -51,7 +52,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var doctor = doctorDto.ToDoctorFromCreateDto();
+            Doctor? doctor = doctorDto.ToDoctorFromCreateDto();
 
             await _doctorRepo.CreateAsync(doctor);
 
@@ -65,7 +66,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var doctor = await _doctorRepo.UpdateAsync(id, updateDto);
+            Doctor? doctor = await _doctorRepo.UpdateAsync(id, updateDto);
 
             if (doctor == null)
             {
@@ -82,7 +83,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var doctor = await _doctorRepo.DeleteAsync(id);
+            Doctor? doctor = await _doctorRepo.DeleteAsync(id);
 
             if (doctor == null)
             {

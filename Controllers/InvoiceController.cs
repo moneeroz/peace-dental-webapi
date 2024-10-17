@@ -4,6 +4,7 @@ using peace_api.Dtos.Invoice;
 using peace_api.Helpers;
 using peace_api.Interfaces;
 using peace_api.Mappers;
+using peace_api.Models;
 
 namespace peace_api.Controllers
 {
@@ -22,9 +23,9 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var invoices = await _invoiceRepo.GetAllAsync(query);
+            List<Invoice>? invoices = await _invoiceRepo.GetAllAsync(query);
 
-            var invoiceDto = invoices.Select(x => x.ToInvoiceDto());
+            IEnumerable<InvoiceDto>? invoiceDto = invoices.Select(x => x.ToInvoiceDto());
 
             return Ok(invoiceDto);
         }
@@ -36,7 +37,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var invoice = await _invoiceRepo.GetByIdAsync(id);
+            Invoice? invoice = await _invoiceRepo.GetByIdAsync(id);
 
             if (invoice == null)
             {
@@ -58,7 +59,7 @@ namespace peace_api.Controllers
                 return BadRequest("Patient does not exist");
             }
 
-            var invoice = invoiceDto.ToInvoiceFromCreateDto(patientId);
+            Invoice? invoice = invoiceDto.ToInvoiceFromCreateDto(patientId);
 
             await _invoiceRepo.CreateAsync(invoice);
 
@@ -72,7 +73,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var invoice = await _invoiceRepo.UpdateAsync(id, updateDto);
+            Invoice? invoice = await _invoiceRepo.UpdateAsync(id, updateDto);
 
             if (invoice == null)
             {
@@ -89,7 +90,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var invoice = await _invoiceRepo.DeleteAsync(id);
+            Invoice? invoice = await _invoiceRepo.DeleteAsync(id);
 
             if (invoice == null)
             {
@@ -106,7 +107,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var count = await _invoiceRepo.GetPageCountAsync(query);
+            int count = await _invoiceRepo.GetPageCountAsync(query);
 
             return Ok(count);
         }

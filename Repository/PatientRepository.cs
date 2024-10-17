@@ -21,7 +21,7 @@ namespace peace_api.Repository
 
         public async Task<Patient?> DeleteAsync(Guid id)
         {
-            var patient = await _context.Patients.FindAsync(id);
+            Patient? patient = await _context.Patients.FindAsync(id);
 
             if (patient == null)
             {
@@ -36,12 +36,12 @@ namespace peace_api.Repository
 
         public async Task<List<Patient>> GetAllAsync(QueryObject query)
         {
-            var patients = _context.Patients.Include(a => a.Invoices).AsQueryable();
+            IQueryable<Patient>? patients = _context.Patients.Include(a => a.Invoices).AsQueryable();
 
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                var term = query.term.ToLower();
+                string? term = query.term.ToLower();
                 patients = patients.Where(a => a.Name.ToLower().Contains(term) ||
                             a.Phone.Contains(term));
             }
@@ -50,14 +50,14 @@ namespace peace_api.Repository
             patients = patients.OrderBy(a => a.Name);
 
             // Pagination
-            var offset = (query.Page - 1) * query.PageSize;
-            var limit = query.PageSize;
+            int offset = (query.Page - 1) * query.PageSize;
+            int limit = query.PageSize;
 
             return await patients.Skip(offset).Take(limit).ToListAsync();
         }
         public async Task<List<Patient>> GetAllPatientsAsync()
         {
-            var patients = _context.Patients.AsQueryable();
+            IQueryable<Patient>? patients = _context.Patients.AsQueryable();
 
             // Sort results
             patients = patients.OrderBy(a => a.Name);
@@ -78,7 +78,7 @@ namespace peace_api.Repository
 
         public async Task<Patient?> UpdateAsync(Guid id, UpdatePatientDto patientDto)
         {
-            var existingPatient = await _context.Patients.FindAsync(id);
+            Patient? existingPatient = await _context.Patients.FindAsync(id);
 
             if (existingPatient == null)
             {
@@ -94,30 +94,32 @@ namespace peace_api.Repository
 
         public async Task<int> GetPageCountAsync(QueryObject query)
         {
-            var patients = _context.Patients.Include(a => a.Invoices).AsQueryable();
+            IQueryable<Patient>? patients = _context.Patients.Include(a => a.Invoices).AsQueryable();
 
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                var term = query.term.ToLower();
+                string? term = query.term.ToLower();
                 patients = patients.Where(a => a.Name.ToLower().Contains(term) ||
                             a.Phone.Contains(term));
             }
 
-            var totalItems = await patients.CountAsync();
-            var itemsPerPage = query.PageSize;
+            int totalItems = await patients.CountAsync();
+            int itemsPerPage = query.PageSize;
 
             return (int)Math.Ceiling((double)totalItems / itemsPerPage);
         }
 
         public async Task<List<Invoice>> GetPatientInvoicesAsync(Guid id, QueryObject query)
         {
-            var invoices = _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+            IQueryable<Invoice>? invoices = _context.Invoices.Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .AsQueryable();
 
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                var term = query.term.ToLower();
+                string? term = query.term.ToLower();
                 invoices = invoices.Where(a => a.Patient.Name.ToLower().Contains(term) ||
                              a.Doctor.Name.ToLower().Contains(term) ||
                              a.Reason.ToLower().Contains(term));
@@ -127,8 +129,8 @@ namespace peace_api.Repository
             invoices = invoices.OrderBy(a => a.CreatedAt);
 
             // Pagination
-            var offset = (query.Page - 1) * query.PageSize;
-            var limit = query.PageSize;
+            int offset = (query.Page - 1) * query.PageSize;
+            int limit = query.PageSize;
 
             return await invoices.Where(a => a.PatientId == id).Skip(offset).Take(limit).ToListAsync();
         }

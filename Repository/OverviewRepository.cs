@@ -13,15 +13,19 @@ namespace peace_api.Repository
 
         public async Task<List<Appointment>> GetCalenderDataAsync()
         {
-            var sixMonthsAgo = DateTime.UtcNow.AddMonths(-6).AddHours(-6).Date;
-            var appointments = _context.Appointments.Include(a => a.Doctor).Include(a => a.Patient).Where(a => a.AppointmentDate.Date >= sixMonthsAgo).AsQueryable();
+            DateTime sixMonthsAgo = DateTime.UtcNow.AddMonths(-6).AddHours(-6).Date;
+
+            IQueryable<Appointment>? appointments = _context.Appointments.Include(a => a.Doctor)
+                .Include(a => a.Patient)
+                .Where(a => a.AppointmentDate.Date >= sixMonthsAgo)
+                .AsQueryable();
 
             return await appointments.ToListAsync();
         }
 
         public async Task<InvoiceStatsDto> GetTodayInvoiceStatsAsync()
         {
-            var today = DateTime.UtcNow.AddHours(-6).Date;
+            DateTime today = DateTime.UtcNow.AddHours(-6).Date;
 
             var result = await _context.Invoices.Where(i => i.CreatedAt.Date == today)
                 .GroupBy(a => a.Status)
@@ -43,14 +47,14 @@ namespace peace_api.Repository
 
         public async Task<int> GetTodayAppointmentCountAsync()
         {
-            var today = DateTime.UtcNow.AddHours(-6).Date;
+            DateTime today = DateTime.UtcNow.AddHours(-6).Date;
 
             return await _context.Appointments.Where(a => a.AppointmentDate.Date == today).CountAsync();
         }
 
         public async Task<Appointment?> UpdateAppointment(UpdateCalenderAppointmentDto appointmentDto, Guid id)
         {
-            var appointment = await _context.Appointments.FindAsync(id);
+            Appointment? appointment = await _context.Appointments.FindAsync(id);
 
             if (appointment == null)
             {

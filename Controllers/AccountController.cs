@@ -1,9 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
+using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -32,21 +29,21 @@ namespace peace_api.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var appUser = new AppUser
+                AppUser? appUser = new()
                 {
                     UserName = registerDto.UserName,
                     Email = registerDto.Email,
                 };
 
-                var result = await _userManager.CreateAsync(appUser, registerDto.Password);
+                IdentityResult? result = await _userManager.CreateAsync(appUser, registerDto.Password);
 
                 if (result.Succeeded)
                 {
-                    var roleResult = await _userManager.AddToRoleAsync(appUser, "User");
+                    IdentityResult? roleResult = await _userManager.AddToRoleAsync(appUser, "User");
 
                     if (roleResult.Succeeded)
                     {
-                        var newUser = new NewUserDto
+                        NewUserDto? newUser = new()
                         {
                             UserName = appUser.UserName,
                             Email = appUser.Email,
@@ -78,13 +75,11 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            AppUser? user = await _userManager.FindByEmailAsync(loginDto.Email);
 
             if (user == null)
             {
-                // return a 404 with an error object that has a message that says "User not found"
                 return NotFound(new { message = "User not found" });
-
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
@@ -94,7 +89,7 @@ namespace peace_api.Controllers
                 return Unauthorized(new { message = "Invalid username or password!" });
             }
 
-            var loggedInUser = new NewUserDto
+            NewUserDto? loggedInUser = new()
             {
                 UserName = user.UserName,
                 Email = user.Email,
@@ -116,9 +111,9 @@ namespace peace_api.Controllers
 
             try
             {
-                var token = Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last();
+                string? token = Request.Headers.Authorization.FirstOrDefault()?.Split(" ").Last();
 
-                var TokenValidationParameters = new TokenValidationParameters
+                TokenValidationParameters? TokenValidationParameters = new()
                 {
                     ValidateIssuer = true,
                     ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
@@ -133,15 +128,15 @@ namespace peace_api.Controllers
 
                 // validate the token
                 var tokenHandler = new JwtSecurityTokenHandler();
-                var validatedToken = tokenHandler.ValidateToken(token, TokenValidationParameters, out var securityToken);
+                ClaimsPrincipal? validatedToken = tokenHandler.ValidateToken(token, TokenValidationParameters, out var securityToken);
 
                 if (securityToken is not JwtSecurityToken jwtSecurityToken)
                     return Forbid();
 
-                var userId = jwtSecurityToken.Claims.First(c => c.Type == "userId").Value;
+                string? userId = jwtSecurityToken.Claims.First(c => c.Type == "userId").Value;
 
 
-                var user = await _userManager.FindByIdAsync(userId);
+                AppUser? user = await _userManager.FindByIdAsync(userId);
 
                 if (user == null || user.RefreshToken != refreshTokenDto.RefreshToken)
                 {
@@ -153,7 +148,7 @@ namespace peace_api.Controllers
                     return Forbid();
                 }
 
-                var loggedInUser = new NewUserDto
+                NewUserDto? loggedInUser = new()
                 {
                     UserName = user.UserName,
                     Email = user.Email,
@@ -178,9 +173,9 @@ namespace peace_api.Controllers
         [Authorize]
         public async Task<IActionResult> Logout()
         {
-            var userId = User.Claims.First(c => c.Type == "userId").Value;
+            string? userId = User.Claims.First(c => c.Type == "userId").Value;
 
-            var user = await _userManager.FindByIdAsync(userId);
+            AppUser? user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
             {

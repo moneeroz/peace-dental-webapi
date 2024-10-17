@@ -13,9 +13,9 @@ namespace peace_api.Repository
 
         public async Task<InvoiceStatsDto> GetInvoiceStatsAsync(RevenueQueryObject query)
         {
-            var year = int.Parse(query?.Year ?? DateTime.UtcNow.Year.ToString());
+            int year = int.Parse(query?.Year ?? DateTime.UtcNow.Year.ToString());
 
-            var invoices = _context.Invoices.AsQueryable()
+            IQueryable<Invoice>? invoices = _context.Invoices.AsQueryable()
                 .Where(a => a.CreatedAt.Year == year);
 
             if (!string.IsNullOrWhiteSpace(query?.Month))
@@ -47,28 +47,30 @@ namespace peace_api.Repository
 
         public async Task<int> GetPatientCountAsync(RevenueQueryObject query)
         {
-            var year = int.Parse(query?.Year ?? DateTime.UtcNow.Year.ToString());
-            var numberOfPatients = await _context.Patients.Where(a => a.CreatedAt.Year == year).CountAsync();
+            int year = int.Parse(query?.Year ?? DateTime.UtcNow.Year.ToString());
+            int numberOfPatients = await _context.Patients.Where(a => a.CreatedAt.Year == year).CountAsync();
 
             return numberOfPatients;
         }
 
         public async Task<List<RevenueChartDto>> GetChartDataAsync(RevenueQueryObject query)
         {
-            var year = int.Parse(query?.Year ?? DateTime.UtcNow.Year.ToString());
+            int year = int.Parse(query?.Year ?? DateTime.UtcNow.Year.ToString());
 
-            var invoices = _context.Invoices.Where(a => a.CreatedAt.Year == year).OrderByDescending(a => a.CreatedAt.Month).AsQueryable();
+            IQueryable<Invoice>? invoices = _context.Invoices.Where(a => a.CreatedAt.Year == year)
+                .OrderByDescending(a => a.CreatedAt.Month)
+                .AsQueryable();
 
-            var res = invoices.GroupBy(a => a.CreatedAt.Month).Select(a => new
+            var groupedInvoices = invoices.GroupBy(a => a.CreatedAt.Month).Select(a => new
             {
                 Month = ConvertMonth(a.Key),
                 Paid = a.Sum(i => i.Status == Status.Paid ? i.Amount : 0),
                 Pending = a.Sum(i => i.Status == Status.Pending ? i.Amount : 0)
             });
 
-            var results = await res.ToListAsync();
+            var results = await groupedInvoices.ToListAsync();
 
-            var revenueDto = results.Select(a => new RevenueChartDto
+            List<RevenueChartDto>? revenueDto = results.Select(a => new RevenueChartDto
             {
                 Name = a.Month,
                 Series =
@@ -94,9 +96,13 @@ namespace peace_api.Repository
 
         public async Task<List<LatestInvoiceDto>> GetLatestInvoicesAsync()
         {
-            var invoices = await _context.Invoices.Include(a => a.Doctor).Include(a => a.Patient).OrderByDescending(a => a.CreatedAt).Take(5).ToListAsync();
+            List<Invoice>? invoices = await _context.Invoices.Include(a => a.Doctor)
+                .Include(a => a.Patient)
+                .OrderByDescending(a => a.CreatedAt)
+                .Take(5)
+                .ToListAsync();
 
-            var data = invoices.Select(a => new LatestInvoiceDto
+            List<LatestInvoiceDto>? data = invoices.Select(a => new LatestInvoiceDto
             {
                 Id = a.Id,
                 Amount = a.Amount,

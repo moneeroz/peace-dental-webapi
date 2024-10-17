@@ -21,7 +21,7 @@ namespace peace_api.Repository
 
         public async Task<Invoice?> DeleteAsync(Guid id)
         {
-            var invoice = await _context.Invoices.FindAsync(id);
+            Invoice? invoice = await _context.Invoices.FindAsync(id);
 
             if (invoice == null)
             {
@@ -36,12 +36,14 @@ namespace peace_api.Repository
 
         public async Task<List<Invoice>> GetAllAsync(QueryObject query)
         {
-            var invoices = _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+            IQueryable<Invoice>? invoices = _context.Invoices.Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .AsQueryable();
 
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                var term = query.term.ToLower();
+                string? term = query.term.ToLower();
                 invoices = invoices.Where(a => a.Patient.Name.ToLower().Contains(term) ||
                             a.Doctor.Name.ToLower().Contains(term) ||
                             a.Reason.ToLower().Contains(term));
@@ -51,20 +53,22 @@ namespace peace_api.Repository
             invoices = invoices.OrderByDescending(a => a.CreatedAt);
 
             // Pagination
-            var offset = (query.Page - 1) * query.PageSize;
-            var limit = query.PageSize;
+            int offset = (query.Page - 1) * query.PageSize;
+            int limit = query.PageSize;
 
             return await invoices.Skip(offset).Take(limit).ToListAsync();
         }
 
         public async Task<Invoice?> GetByIdAsync(Guid id)
         {
-            return await _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).FirstOrDefaultAsync(a => a.Id == id);
+            return await _context.Invoices.Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<Invoice?> UpdateAsync(Guid id, UpdateInvoiceDto invoiceDto)
         {
-            var existingInvoice = await _context.Invoices.FindAsync(id);
+            Invoice? existingInvoice = await _context.Invoices.FindAsync(id);
 
             if (existingInvoice == null)
             {
@@ -82,19 +86,21 @@ namespace peace_api.Repository
 
         public async Task<int> GetPageCountAsync(QueryObject query)
         {
-            var invoices = _context.Invoices.Include(a => a.Patient).Include(a => a.Doctor).AsQueryable();
+            IQueryable<Invoice>? invoices = _context.Invoices.Include(a => a.Patient)
+                .Include(a => a.Doctor)
+                .AsQueryable();
 
             // Check for query term and filter the results
             if (!string.IsNullOrWhiteSpace(query.term))
             {
-                var term = query.term.ToLower();
+                string? term = query.term.ToLower();
                 invoices = invoices.Where(a => a.Patient.Name.ToLower().Contains(term) ||
                             a.Doctor.Name.ToLower().Contains(term) ||
                             a.Reason.ToLower().Contains(term));
             }
 
-            var totalItems = await invoices.CountAsync();
-            var itemsPerPage = query.PageSize;
+            int totalItems = await invoices.CountAsync();
+            int itemsPerPage = query.PageSize;
 
             return (int)Math.Ceiling((double)totalItems / itemsPerPage);
         }

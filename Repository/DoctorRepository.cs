@@ -20,17 +20,17 @@ namespace peace_api.Repository
 
         public async Task<Doctor?> DeleteAsync(Guid id)
         {
-            var doctors = await _context.Doctors.FindAsync(id);
+            Doctor? doctor = await _context.Doctors.FindAsync(id);
 
-            if (doctors == null)
+            if (doctor == null)
             {
                 return null;
             }
 
-            _context.Doctors.Remove(doctors);
+            _context.Doctors.Remove(doctor);
             await _context.SaveChangesAsync();
 
-            return doctors;
+            return doctor;
         }
 
         public async Task<List<Doctor>> GetAllAsync()
@@ -45,7 +45,7 @@ namespace peace_api.Repository
 
         public async Task<Doctor?> UpdateAsync(Guid id, UpdateDoctorDto DoctorDto)
         {
-            var existingDoctor = await _context.Doctors.FindAsync(id);
+            Doctor? existingDoctor = await _context.Doctors.FindAsync(id);
 
             if (existingDoctor == null)
             {

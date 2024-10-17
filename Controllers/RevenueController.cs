@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using peace_api.Dtos.Revenue;
 using peace_api.Helpers;
 using peace_api.Interfaces;
 
@@ -19,7 +20,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var invoiceStats = await _revenueRepo.GetInvoiceStatsAsync(query);
+            InvoiceStatsDto? invoiceStats = await _revenueRepo.GetInvoiceStatsAsync(query);
 
             return Ok(invoiceStats);
         }
@@ -31,7 +32,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var patientCount = await _revenueRepo.GetPatientCountAsync(query);
+            int patientCount = await _revenueRepo.GetPatientCountAsync(query);
 
             return Ok(patientCount);
         }
@@ -43,7 +44,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var chartData = await _revenueRepo.GetChartDataAsync(query);
+            List<RevenueChartDto>? chartData = await _revenueRepo.GetChartDataAsync(query);
 
             return Ok(chartData);
         }
@@ -55,7 +56,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var latestInvoices = await _revenueRepo.GetLatestInvoicesAsync();
+            List<LatestInvoiceDto>? latestInvoices = await _revenueRepo.GetLatestInvoicesAsync();
 
             return Ok(latestInvoices);
         }

@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+using peace_api.Dtos.Appointment;
 using peace_api.Dtos.Overview;
+using peace_api.Dtos.Revenue;
 using peace_api.Interfaces;
 using peace_api.Mappers;
+using peace_api.Models;
 
 namespace peace_api.Controllers
 {
@@ -18,7 +21,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var invoiceStats = await _overviewRepo.GetTodayInvoiceStatsAsync();
+            InvoiceStatsDto? invoiceStats = await _overviewRepo.GetTodayInvoiceStatsAsync();
 
             return Ok(invoiceStats);
         }
@@ -30,7 +33,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appointmentsCount = await _overviewRepo.GetTodayAppointmentCountAsync();
+            int appointmentsCount = await _overviewRepo.GetTodayAppointmentCountAsync();
 
             return Ok(appointmentsCount);
         }
@@ -42,9 +45,9 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appointments = await _overviewRepo.GetCalenderDataAsync();
+            List<Appointment>? appointments = await _overviewRepo.GetCalenderDataAsync();
 
-            var appointmentDto = appointments.Select(x => x.ToAppointmentDto());
+            IEnumerable<AppointmentDto>? appointmentDto = appointments.Select(x => x.ToAppointmentDto());
 
             return Ok(appointmentDto);
         }
@@ -56,7 +59,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appointment = await _overviewRepo.UpdateAppointment(appointmentDto, id);
+            Appointment? appointment = await _overviewRepo.UpdateAppointment(appointmentDto, id);
 
             if (appointment == null)
             {

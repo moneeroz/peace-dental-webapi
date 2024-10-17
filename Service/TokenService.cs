@@ -15,20 +15,20 @@ namespace peace_api.Service
         public async Task<string> CreateToken(AppUser user, int days)
         {
             DotEnv.Load();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!));
+            SymmetricSecurityKey? key = new(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET")!));
 
-            var roles = await _userManager.GetRolesAsync(user);
+            IList<string>? roles = await _userManager.GetRolesAsync(user);
 
-            var claims = new List<Claim>
-            {
+            List<Claim>? claims =
+            [
                 new (JwtRegisteredClaimNames.Email, user.Email),
                 new (ClaimTypes.Role, roles.First()),
                 new ("userId", user.Id)
-            };
+            ];
 
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
+            SigningCredentials? creds = new(key, SecurityAlgorithms.HmacSha512Signature);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
+            SecurityTokenDescriptor? tokenDescriptor = new()
             {
                 Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddDays(days),
@@ -39,7 +39,7 @@ namespace peace_api.Service
 
             var tokenHandler = new JwtSecurityTokenHandler();
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            SecurityToken? token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
         }

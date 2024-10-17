@@ -4,6 +4,7 @@ using peace_api.Dtos.Appointment;
 using peace_api.Helpers;
 using peace_api.Interfaces;
 using peace_api.Mappers;
+using peace_api.Models;
 
 namespace peace_api.Controllers
 {
@@ -23,9 +24,9 @@ namespace peace_api.Controllers
                 return BadRequest(ModelState);
 
 
-            var appointments = await _appointmentRepo.GetAllAsync(query);
+            List<Appointment>? appointments = await _appointmentRepo.GetAllAsync(query);
 
-            var appointmentDto = appointments.Select(x => x.ToAppointmentDto());
+            IEnumerable<AppointmentDto>? appointmentDto = appointments.Select(x => x.ToAppointmentDto());
 
             return Ok(appointmentDto);
         }
@@ -37,7 +38,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appointment = await _appointmentRepo.GetByIdAsync(id);
+            Appointment? appointment = await _appointmentRepo.GetByIdAsync(id);
 
             if (appointment == null)
             {
@@ -59,7 +60,7 @@ namespace peace_api.Controllers
                 return BadRequest("Patient does not exist");
             }
 
-            var appointment = appointmentDto.ToAppointmentFromCreateDto(patientId);
+            Appointment? appointment = appointmentDto.ToAppointmentFromCreateDto(patientId);
 
             await _appointmentRepo.CreateAsync(appointment);
 
@@ -73,7 +74,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appointment = await _appointmentRepo.UpdateAsync(id, updateDto);
+            Appointment? appointment = await _appointmentRepo.UpdateAsync(id, updateDto);
 
             if (appointment == null)
             {
@@ -90,7 +91,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var appointment = await _appointmentRepo.DeleteAsync(id);
+            Appointment? appointment = await _appointmentRepo.DeleteAsync(id);
 
             if (appointment == null)
             {
@@ -107,7 +108,7 @@ namespace peace_api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var count = await _appointmentRepo.GetPageCountAsync(query);
+            int count = await _appointmentRepo.GetPageCountAsync(query);
 
             return Ok(count);
         }
