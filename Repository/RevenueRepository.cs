@@ -11,13 +11,14 @@ namespace peace_api.Repository
     {
         private readonly ApplicationDBContext _context = context;
 
-        public async Task<RevenueCardDto> GetCardDataAsync(RevenueQueryObject query)
+        public async Task<InvoiceStatsDto> GetInvoiceStatsAsync(RevenueQueryObject query)
         {
             var year = int.Parse(query?.Year ?? DateTime.UtcNow.Year.ToString());
 
-            var invoices = _context.Invoices.Where(a => a.CreatedAt.Year == year).AsQueryable();
+            var invoices = _context.Invoices.AsQueryable()
+                .Where(a => a.CreatedAt.Year == year);
 
-            if (query?.Month != null)
+            if (!string.IsNullOrWhiteSpace(query?.Month))
             {
                 invoices = invoices.Where(a => a.CreatedAt.Month == int.Parse(query.Month));
             }
@@ -27,23 +28,29 @@ namespace peace_api.Repository
                 invoices = invoices.Where(a => a.DoctorId == query.DoctorId);
             }
 
-            var groupedInvoices = await invoices.GroupBy(a => a.Status).ToListAsync();
+            var result = await invoices.GroupBy(a => a.Status)
+                .Select(a => new
+                {
+                    Status = a.Key,
+                    Amount = a.Sum(b => b.Amount),
+                    Count = a.Count()
+                })
+                .ToListAsync();
 
-            var totalPaid = groupedInvoices.Where(a => a.Key == Status.Paid).Sum(a => a.Sum(b => b.Amount));
+            return new InvoiceStatsDto
+            {
+                Paid = result.Where(a => a.Status == Status.Paid).Sum(a => a.Amount),
+                Pending = result.Where(a => a.Status == Status.Pending).Sum(a => a.Amount),
+                Count = result.Sum(a => a.Count)
+            };
+        }
 
-            var totalPending = groupedInvoices.Where(a => a.Key == Status.Pending).Sum(a => a.Sum(a => a.Amount));
-
+        public async Task<int> GetPatientCountAsync(RevenueQueryObject query)
+        {
+            var year = int.Parse(query?.Year ?? DateTime.UtcNow.Year.ToString());
             var numberOfPatients = await _context.Patients.Where(a => a.CreatedAt.Year == year).CountAsync();
 
-            var numberOfInvoices = await invoices.CountAsync();
-
-            return new RevenueCardDto
-            {
-                NumberOfPatients = numberOfPatients,
-                NumberOfInvoices = numberOfInvoices,
-                TotalPaid = totalPaid,
-                TotalPending = totalPending
-            };
+            return numberOfPatients;
         }
 
         public async Task<List<RevenueChartDto>> GetChartDataAsync(RevenueQueryObject query)

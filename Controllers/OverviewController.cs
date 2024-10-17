@@ -11,16 +11,28 @@ namespace peace_api.Controllers
     {
         private readonly IOverviewRepository _overviewRepo = overviewRepo;
 
-        // GET: api/overview
-        [HttpGet("card-data")]
-        public async Task<IActionResult> GetCardData()
+        // GET: api/overview/invoice-stats
+        [HttpGet("invoice-stats")]
+        public async Task<IActionResult> GetInvoiceStats()
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var cardData = await _overviewRepo.GetCardDataAsync();
+            var invoiceStats = await _overviewRepo.GetTodayInvoiceStatsAsync();
 
-            return Ok(cardData);
+            return Ok(invoiceStats);
+        }
+
+        // GET: api/overview/appointment-count
+        [HttpGet("appointment-count")]
+        public async Task<IActionResult> GetAppointmentCount()
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var appointmentsCount = await _overviewRepo.GetTodayAppointmentCountAsync();
+
+            return Ok(appointmentsCount);
         }
 
         // GET: api/overview/calender

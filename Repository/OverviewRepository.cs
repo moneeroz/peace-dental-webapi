@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using peace_api.Data;
 using peace_api.Dtos.Overview;
+using peace_api.Dtos.Revenue;
 using peace_api.Interfaces;
 using peace_api.Models;
 
@@ -18,28 +19,33 @@ namespace peace_api.Repository
             return await appointments.ToListAsync();
         }
 
-        public async Task<CardDataDto> GetCardDataAsync()
+        public async Task<InvoiceStatsDto> GetTodayInvoiceStatsAsync()
         {
             var today = DateTime.UtcNow.AddHours(-6).Date;
-            var tomorrow = today.AddDays(1);
 
-            var appointments = _context.Appointments.AsQueryable();
-            var invoices = _context.Invoices.AsQueryable();
+            var result = await _context.Invoices.Where(i => i.CreatedAt.Date == today)
+                .GroupBy(a => a.Status)
+                .Select(a => new
+                {
+                    Status = a.Key,
+                    Amount = a.Sum(b => b.Amount),
+                    Count = a.Count()
+                })
+                .ToListAsync();
 
-            var todayAppointmentsCount = await appointments.Where(a => a.AppointmentDate.Date == today).CountAsync();
-            var tomorrowAppointmentsCount = await appointments.Where(a => a.AppointmentDate.Date == tomorrow).CountAsync();
-            var invoiceStatus = await _context.Invoices
-               .Where(i => i.CreatedAt.Date == today).ToListAsync();
-
-            var invoicesPaidToday = invoiceStatus?.Sum(i => i.Status == Status.Paid ? i.Amount : 0) ?? 0;
-            var invoicesPendingToday = invoiceStatus?.Sum(i => i.Status == Status.Pending ? i.Amount : 0) ?? 0;
-            return new CardDataDto
+            return new InvoiceStatsDto
             {
-                AppointmentsToday = todayAppointmentsCount,
-                AppointmentsTomorrow = tomorrowAppointmentsCount,
-                InvoicesPaidToday = invoicesPaidToday,
-                InvoicesPendingToday = invoicesPendingToday,
+                Paid = result.Where(a => a.Status == Status.Paid).Sum(a => a.Amount),
+                Pending = result.Where(a => a.Status == Status.Pending).Sum(a => a.Amount),
+                Count = result.Sum(a => a.Count)
             };
+        }
+
+        public async Task<int> GetTodayAppointmentCountAsync()
+        {
+            var today = DateTime.UtcNow.AddHours(-6).Date;
+
+            return await _context.Appointments.Where(a => a.AppointmentDate.Date == today).CountAsync();
         }
 
         public async Task<Appointment?> UpdateAppointment(UpdateCalenderAppointmentDto appointmentDto, Guid id)

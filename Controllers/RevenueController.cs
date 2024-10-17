@@ -12,16 +12,28 @@ namespace peace_api.Controllers
     {
         private readonly IRevenueRepository _revenueRepo = revenueRepo;
 
-        // GET: api/revenue/card
-        [HttpGet("card")]
-        public async Task<IActionResult> GetCardData([FromQuery] RevenueQueryObject query)
+        // GET: api/revenue/invoice-stats
+        [HttpGet("invoice-stats")]
+        public async Task<IActionResult> GetInvoiceStats([FromQuery] RevenueQueryObject query)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var cardData = await _revenueRepo.GetCardDataAsync(query);
+            var invoiceStats = await _revenueRepo.GetInvoiceStatsAsync(query);
 
-            return Ok(cardData);
+            return Ok(invoiceStats);
+        }
+
+        // GET: api/revenue/patient-count
+        [HttpGet("patient-count")]
+        public async Task<IActionResult> GetPatientCount([FromQuery] RevenueQueryObject query)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var patientCount = await _revenueRepo.GetPatientCountAsync(query);
+
+            return Ok(patientCount);
         }
 
         // Get: api/revenue/chart
