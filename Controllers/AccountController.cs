@@ -82,14 +82,16 @@ namespace peace_api.Controllers
 
             if (user == null)
             {
-                return Unauthorized("Invalid username or password!");
+                // return a 404 with an error object that has a message that says "User not found"
+                return NotFound(new { message = "User not found" });
+
             }
 
             var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
 
             if (!result.Succeeded)
             {
-                return Unauthorized("Invalid username or password!");
+                return Unauthorized(new { message = "Invalid username or password!" });
             }
 
             var loggedInUser = new NewUserDto
